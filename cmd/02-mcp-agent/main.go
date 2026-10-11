@@ -94,6 +94,10 @@ func main() {
 					sb.WriteString(tc.Text)
 				}
 			}
+			// 工具级错误（IsError）也作为 error 返回：agent.callTool 会统一加 "ERROR: " 前缀回填给模型
+			if res.IsError {
+				return "", fmt.Errorf("%s", sb.String())
+			}
 			return sb.String(), nil
 		}
 	}

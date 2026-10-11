@@ -41,6 +41,12 @@ embedding_provider: qwen  # 嵌入：qwen | glm | siliconflow（deepseek 无 emb
 
 默认端点与模型见 `internal/provider/provider.go`。
 
+注意：**切换 embedding_provider 或 embedding_model 后**，旧 `.chromem/` 向量库与新模型的向量空间不兼容，必须先删除再重建：
+
+```bash
+rm -rf .chromem && go run ./cmd/03-rag ingest
+```
+
 ## 快速验证（不需要 API key）
 
 demo01 是纯本地 stdio 服务器，可以手工喂 JSON-RPC 验证：

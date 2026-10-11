@@ -13,8 +13,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/philippgille/chromem-go"
 	openai "github.com/openai/openai-go/v3"
+	"github.com/philippgille/chromem-go"
 
 	"example-go-agent-lab/internal/appenv"
 	"example-go-agent-lab/internal/config"

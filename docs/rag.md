@@ -64,3 +64,5 @@ go run ./cmd/03-rag ask "今天股票行情怎么样"    # 语料外问题，应
 
 验证要点：回答带 `[1]` 样式编号且能对上"命中块"列表；
 语料外问题不编造；`.chromem/` 目录在 ingest 后出现（已 gitignore）。
+
+注意：不同 embedding 模型的向量空间互不兼容——切换 embedding_provider/embedding_model 后，必须删除 `.chromem/` 并重新 `ingest`，否则检索结果是静默的垃圾。

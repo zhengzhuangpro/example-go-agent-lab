@@ -1034,7 +1034,7 @@ goroutine 是 Go 的轻量级线程，`go f(x)` 一行即可启动。channel 是
 
 ## 经验法则
 
-能用品级并发达到的就别上协程级复杂度；并发原语首选 channel，
+能用几行代码达到的就别上协程级复杂度；并发原语首选 channel，
 共享状态保护次选 `sync.Mutex`。
 ```
 
@@ -1906,6 +1906,10 @@ func main() {
 					sb.WriteString(tc.Text)
 				}
 			}
+			// 工具级错误（IsError）也作为 error 返回：agent.callTool 会统一加 "ERROR: " 前缀回填给模型
+			if res.IsError {
+				return "", fmt.Errorf("%s", sb.String())
+			}
 			return sb.String(), nil
 		}
 	}
@@ -2489,6 +2493,10 @@ func main() {
 					if tc, ok := c.(mcp.TextContent); ok {
 						sb.WriteString(tc.Text)
 					}
+				}
+				// 工具级错误（IsError）也作为 error 返回：agent.callTool 会统一加 "ERROR: " 前缀回填给模型
+				if res.IsError {
+					return "", fmt.Errorf("%s", sb.String())
 				}
 				return sb.String(), nil
 			}

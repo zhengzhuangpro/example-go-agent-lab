@@ -5,6 +5,7 @@ go 1.26.4
 require (
 	github.com/mark3labs/mcp-go v1.2.1
 	github.com/openai/openai-go/v3 v3.76.0
+	github.com/philippgille/chromem-go v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

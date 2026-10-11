@@ -1206,7 +1206,7 @@ func registerGetTime(s *server.MCPServer) {
 		now := time.Now().In(loc)
 		text := fmt.Sprintf("%s（%s，星期%s）",
 			now.Format("2006-01-02 15:04:05"), now.Format("MST"),
-			"日一二三四五六"[int(now.Weekday())])
+			string([]rune("日一二三四五六")[int(now.Weekday())]))
 		return mcp.NewToolResultText(text), nil
 	})
 }

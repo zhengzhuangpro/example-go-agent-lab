@@ -125,9 +125,10 @@ rm -rf probe/
 go mod tidy
 ```
 
-创建 `.gitignore`：
+创建 `.gitignore`（若已存在则确保包含以下三行）：
 
 ```
+.superpowers/
 .chromem/
 *.exe
 ```

@@ -1,6 +1,6 @@
 # 聊天 provider：deepseek | glm | qwen
 # DeepSeek 没有 /embeddings 接口，所以 embedding 单独配一家
-provider: deepseek
+provider: glm
 embedding_provider: qwen
 
 # 可选：覆盖默认模型名（默认见 internal/provider/provider.go）

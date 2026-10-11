@@ -1514,9 +1514,9 @@ func TestRunDirectAnswer(t *testing.T) {
 	if len(updated) != 2 {
 		t.Fatalf("len(updated) = %d, want 2", len(updated))
 	}
-	// 但发给模型的消息含 system 前缀
+	// 无 SystemPrompt 时，发给模型的首条消息不应是 system
 	first := sc.captured[0][0]
-	if first.OfSystem == nil {
+	if first.OfSystem != nil {
 		t.Errorf("无 SystemPrompt 时首条不应是 system")
 	}
 }
@@ -1641,8 +1641,8 @@ func TestTruncateHistory(t *testing.T) {
 	tcMsg := llm.AssistantWithToolCalls("", []llm.ToolCall{{ID: "1", Name: "n", Arguments: `{}`}})
 	toolMsg := llm.ToolResult("r", "1")
 	aMsg := openai.AssistantMessage("a")
-	msgs := []llm.Message{u, tcMsg, toolMsg, u, aMsg, toolMsg, u}
-	// keepLast=4 会截到 [aMsg, toolMsg, u] 开头不是 tool，不需要再丢
+	msgs := []llm.Message{u, tcMsg, toolMsg, aMsg, toolMsg, u}
+	// keepLast=4 截到 [toolMsg, aMsg, toolMsg, u]，开头是 tool 消息被继续丢弃 → [aMsg, toolMsg, u]
 	got := TruncateHistory(msgs, 4)
 	if len(got) != 3 {
 		t.Fatalf("len = %d, want 3（开头 tool 消息被继续丢弃）", len(got))

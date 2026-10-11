@@ -132,7 +132,14 @@ func ingest(ctx context.Context, col *chromem.Collection) error {
 
 // ask 检索 + 生成。
 func ask(ctx context.Context, col *chromem.Collection, cfg config.Config, question string) error {
-	results, err := col.Query(ctx, question, topK, nil, nil)
+	// chromem v0.7.0 要求 nResults 不超过集合内文档数，空库或小块数会直接报错；
+	// 先用 Count() 钳制，空库时给出对用户友好的"未命中"提示。
+	n := min(topK, col.Count())
+	if n == 0 {
+		fmt.Println("未命中任何资料。请先运行: go run ./cmd/03-rag ingest")
+		return nil
+	}
+	results, err := col.Query(ctx, question, n, nil, nil)
 	if err != nil {
 		return fmt.Errorf("检索失败: %w", err)
 	}

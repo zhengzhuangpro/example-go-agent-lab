@@ -1341,7 +1341,7 @@ func TestConvertTools(t *testing.T) {
 	if f.Name != "get_time" {
 		t.Errorf("name = %q", f.Name)
 	}
-	if !f.Description.Valid || f.Description.Value != "获取当前时间" {
+	if !f.Description.Valid() || f.Description.Value != "获取当前时间" {
 		t.Errorf("description = %+v", f.Description)
 	}
 
@@ -1382,7 +1382,7 @@ func TestConvertToolsEmptyRequired(t *testing.T) {
 	}
 }
 
-var _ = llm.ToolDef // 保证包引用（ConvertTools 返回类型即 llm.ToolDef）
+var _ llm.ToolDef // 保证包引用（ConvertTools 返回类型即 llm.ToolDef）
 ```
 
 - [ ] **Step 2: 运行确认失败**

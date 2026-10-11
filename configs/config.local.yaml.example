@@ -1,0 +1,11 @@
+# 本地覆盖文件模板：复制为 configs/config.local.yaml 后填入真实 key。
+# config.local.yaml 已加入 .gitignore，不会被提交；环境变量优先级仍高于此文件。
+#
+#   cp configs/config.local.yaml.example configs/config.local.yaml
+#
+api_keys:
+  # 键名 = 环境变量名；只填你在用的那几家
+  DEEPSEEK_API_KEY: sk-xxx
+  # ZHIPU_API_KEY: sk-xxx
+  # DASHSCOPE_API_KEY: sk-xxx
+  # SILICONFLOW_API_KEY: sk-xxx

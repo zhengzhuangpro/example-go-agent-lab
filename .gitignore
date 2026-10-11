@@ -1,3 +1,4 @@
 .superpowers/
 .chromem/
 *.exe
+configs/config.local.yaml

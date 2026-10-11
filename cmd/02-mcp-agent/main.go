@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("聊天 provider 无效: %v", err)
 	}
-	apiKey, err := appenv.Lookup(ep.APIKeyEnv)
+	apiKey, err := appenv.Resolve(ep.APIKeyEnv, cfg.APIKeys[ep.APIKeyEnv])
 	if err != nil {
 		log.Fatal(err)
 	}

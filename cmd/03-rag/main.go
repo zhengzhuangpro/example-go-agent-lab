@@ -50,7 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("embedding provider 无效: %v", err)
 	}
-	ekey, err := appenv.Lookup(eep.APIKeyEnv)
+	ekey, err := appenv.Resolve(eep.APIKeyEnv, cfg.APIKeys[eep.APIKeyEnv])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -158,7 +158,7 @@ func ask(ctx context.Context, col *chromem.Collection, cfg config.Config, questi
 	if err != nil {
 		return err
 	}
-	key, err := appenv.Lookup(ep.APIKeyEnv)
+	key, err := appenv.Resolve(ep.APIKeyEnv, cfg.APIKeys[ep.APIKeyEnv])
 	if err != nil {
 		return err
 	}

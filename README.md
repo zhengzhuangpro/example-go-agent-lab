@@ -15,9 +15,9 @@ chromem-go），贴近生产实践。
 
 每个 demo 的原理说明见 `docs/` 下对应文档。
 
-## 环境变量（key 不落盘）
+## API key（不进版本库）
 
-按所用 provider 设置（见下表），不需要的可以不设：
+key 有两种来源，优先级：**环境变量 > 本地覆盖文件**：
 
 | 变量 | 用途 |
 |------|------|
@@ -26,7 +26,15 @@ chromem-go），贴近生产实践。
 | `DASHSCOPE_API_KEY` | 聊天/Embedding（qwen） |
 | `SILICONFLOW_API_KEY` | Embedding（siliconflow） |
 
-Windows PowerShell：`$env:DEEPSEEK_API_KEY="sk-..."`；Git Bash：`export DEEPSEEK_API_KEY=sk-...`
+方式一（环境变量）——Windows PowerShell：`$env:DEEPSEEK_API_KEY="sk-..."`；Git Bash：`export DEEPSEEK_API_KEY=sk-...`
+
+方式二（本地覆盖文件，免每次设环境变量）——把模板复制为 `configs/config.local.yaml` 后填入真实 key：
+
+```bash
+cp configs/config.local.yaml.example configs/config.local.yaml
+```
+
+`config.local.yaml` 已加入 `.gitignore`，永远不会被提交（**切勿把 key 写进 `configs/config.yaml`——那个文件是被跟踪的**）。环境变量始终优先于本地文件，CI/容器场景不受影响。
 
 ## Provider 切换
 

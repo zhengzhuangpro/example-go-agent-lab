@@ -197,9 +197,21 @@ func ask(ctx context.Context, sc openai.Client, model string, col *chromem.Colle
 	if err != nil {
 		return err
 	}
-	fmt.Printf("助手> %s\n\n命中块：\n", resp.Choices[0].Message.Content)
+	content, err := answerText(resp)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("助手> %s\n\n命中块：\n", content)
 	for i, r := range results {
 		fmt.Printf("  [%d] %s（相似度 %.3f）\n", i+1, r.Metadata["source"], r.Similarity)
 	}
 	return nil
+}
+
+// answerText 取首条候选回复；空 Choices 报错而非 panic（与 02/04 的 completeFnOf 同一标准）。
+func answerText(resp *openai.ChatCompletion) (string, error) {
+	if len(resp.Choices) == 0 {
+		return "", fmt.Errorf("模型未返回任何候选回复")
+	}
+	return resp.Choices[0].Message.Content, nil
 }

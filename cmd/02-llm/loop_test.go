@@ -11,8 +11,8 @@ import (
 // fakeComplete 用脚本回放模型行为：第 1 次要工具，第 2 次给最终回答。
 func TestRunTurnToolLoop(t *testing.T) {
 	var gotName string
-	handlers := map[string]func(map[string]any) string{
-		"echo": func(args map[string]any) string {
+	handlers := map[string]func(context.Context, map[string]any) string{
+		"echo": func(ctx context.Context, args map[string]any) string {
 			gotName, _ = args["name"].(string)
 			return "hi"
 		},
@@ -49,8 +49,8 @@ func TestRunTurnMaxSteps(t *testing.T) {
 	complete := func(ctx context.Context, msgs []openai.ChatCompletionMessageParamUnion, tools []openai.ChatCompletionToolUnionParam) (string, []toolCall, error) {
 		return "", []toolCall{{ID: "c", Name: "echo", Arguments: "{}"}}, nil
 	}
-	handlers := map[string]func(map[string]any) string{
-		"echo": func(args map[string]any) string { return "x" },
+	handlers := map[string]func(context.Context, map[string]any) string{
+		"echo": func(ctx context.Context, args map[string]any) string { return "x" },
 	}
 	_, _, err := runTurn(context.Background(), complete, nil, handlers, nil, "hi")
 	if err == nil || !strings.Contains(err.Error(), "8") {
@@ -59,20 +59,21 @@ func TestRunTurnMaxSteps(t *testing.T) {
 }
 
 func TestDispatch(t *testing.T) {
-	handlers := map[string]func(map[string]any) string{
-		"ok": func(args map[string]any) string { return "fine" },
+	handlers := map[string]func(context.Context, map[string]any) string{
+		"ok": func(ctx context.Context, args map[string]any) string { return "fine" },
 	}
-	if got := dispatch(handlers, toolCall{Name: "ok", Arguments: `{}`}); got != "fine" {
+	ctx := context.Background()
+	if got := dispatch(ctx, handlers, toolCall{Name: "ok", Arguments: `{}`}); got != "fine" {
 		t.Errorf("正常分发 = %q", got)
 	}
-	if got := dispatch(handlers, toolCall{Name: "nope", Arguments: `{}`}); !strings.HasPrefix(got, "ERROR:") {
+	if got := dispatch(ctx, handlers, toolCall{Name: "nope", Arguments: `{}`}); !strings.HasPrefix(got, "ERROR:") {
 		t.Errorf("未知工具应返回 ERROR: 前缀, got %q", got)
 	}
-	if got := dispatch(handlers, toolCall{Name: "ok", Arguments: `{bad`}); !strings.HasPrefix(got, "ERROR:") {
+	if got := dispatch(ctx, handlers, toolCall{Name: "ok", Arguments: `{bad`}); !strings.HasPrefix(got, "ERROR:") {
 		t.Errorf("坏 JSON 应返回 ERROR: 前缀, got %q", got)
 	}
 	// 空参数字符串：视为无参数，不报 JSON 错
-	if got := dispatch(handlers, toolCall{Name: "ok", Arguments: ""}); got != "fine" {
+	if got := dispatch(ctx, handlers, toolCall{Name: "ok", Arguments: ""}); got != "fine" {
 		t.Errorf("空 arguments 应按空参数处理, got %q", got)
 	}
 }

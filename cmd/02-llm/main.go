@@ -45,7 +45,7 @@ func main() {
 	complete := completeFnOf(sc, model)
 
 	tools := []openai.ChatCompletionToolUnionParam{timeTool(), calcTool()}
-	handlers := map[string]func(map[string]any) string{
+	handlers := map[string]func(context.Context, map[string]any) string{
 		"get_time":  handleGetTime,
 		"calculate": handleCalculate,
 	}
@@ -116,7 +116,7 @@ type completeFn func(ctx context.Context, msgs []openai.ChatCompletionMessagePar
 
 // runTurn 处理一轮用户输入：模型要工具就执行并回填，直到模型给出纯文本回答。
 // history 不含 system（system 每次由调用方拼在最前）。
-func runTurn(ctx context.Context, complete completeFn, tools []openai.ChatCompletionToolUnionParam, handlers map[string]func(map[string]any) string, history []openai.ChatCompletionMessageParamUnion, user string) (string, []openai.ChatCompletionMessageParamUnion, error) {
+func runTurn(ctx context.Context, complete completeFn, tools []openai.ChatCompletionToolUnionParam, handlers map[string]func(context.Context, map[string]any) string, history []openai.ChatCompletionMessageParamUnion, user string) (string, []openai.ChatCompletionMessageParamUnion, error) {
 	msgs := append(history, openai.UserMessage(user))
 	for step := 0; step < 8; step++ {
 		content, calls, err := complete(ctx, msgs, tools)
@@ -130,7 +130,7 @@ func runTurn(ctx context.Context, complete completeFn, tools []openai.ChatComple
 		// 模型决定调工具：assistant(tool_calls) 与每条结果都要写回消息流
 		msgs = append(msgs, assistantWithToolCalls(content, calls))
 		for _, c := range calls {
-			result := dispatch(handlers, c)
+			result := dispatch(ctx, handlers, c)
 			fmt.Printf("  ⚙ %s(%s)\n  ← %s\n", c.Name, c.Arguments, firstLine(result))
 			msgs = append(msgs, openai.ToolMessage(result, c.ID))
 		}
@@ -139,7 +139,7 @@ func runTurn(ctx context.Context, complete completeFn, tools []openai.ChatComple
 }
 
 // dispatch 执行单个工具调用；一切错误都变成 ERROR: 文本回填给模型。
-func dispatch(handlers map[string]func(map[string]any) string, c toolCall) string {
+func dispatch(ctx context.Context, handlers map[string]func(context.Context, map[string]any) string, c toolCall) string {
 	h, ok := handlers[c.Name]
 	if !ok {
 		return fmt.Sprintf("ERROR: 未知工具 %q", c.Name)
@@ -150,7 +150,7 @@ func dispatch(handlers map[string]func(map[string]any) string, c toolCall) strin
 			return fmt.Sprintf("ERROR: 工具参数不是合法 JSON: %v", err)
 		}
 	}
-	return h(args)
+	return h(ctx, args)
 }
 
 // assistantWithToolCalls 构造"带 tool_calls 的 assistant 消息"写回历史。
@@ -229,7 +229,7 @@ func timeIn(tz string) (string, error) {
 		string([]rune("日一二三四五六")[int(now.Weekday())])), nil
 }
 
-func handleGetTime(args map[string]any) string {
+func handleGetTime(ctx context.Context, args map[string]any) string {
 	tz, _ := args["timezone"].(string)
 	text, err := timeIn(tz)
 	if err != nil {
@@ -238,7 +238,7 @@ func handleGetTime(args map[string]any) string {
 	return text
 }
 
-func handleCalculate(args map[string]any) string {
+func handleCalculate(ctx context.Context, args map[string]any) string {
 	exprStr, _ := args["expression"].(string)
 	val, err := evaluate(exprStr)
 	if err != nil {
